@@ -13,7 +13,7 @@
           physics: {
             default: 'arcade',
             arcade: {
-              gravity: { y: 300 },
+              gravity: { y: 800 },
             },
           },
           scene: {
@@ -161,7 +161,7 @@
           return
         }
 
-        var xSpeed = 160
+        var xSpeed = 200
         // Controls
         if ( cursors.left.isDown ) {
           player.setVelocityX(-xSpeed)
@@ -176,7 +176,7 @@
         }
 
         if ( cursors.up.isDown && player.body.touching.down ) {
-          player.setVelocityY(-330)
+          player.setVelocityY(-550)
         }
       }
     </script>
