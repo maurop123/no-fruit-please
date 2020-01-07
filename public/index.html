@@ -31,13 +31,17 @@
       function preload ()
       {
         this.load.image('sky', 'assets/sky.png')
-        this.load.spritesheet('star', 'assets/star.png', {
-          frameWidth: 32, frameHeight: 48
+        //this.load.spritesheet('star', 'assets/star.png', {
+        this.load.spritesheet('star', 'assets/orange.png', {
+          frameWidth: 200,
+          frameHeight: 200,
         })
         this.load.image('ground', 'assets/platform.png');
         this.load.image('bomb', 'assets/bomb.png');
-        this.load.spritesheet('dude', 'assets/dude.png', {
-          frameWidth: 32, frameHeight: 48
+        //this.load.spritesheet('dude', 'assets/dude.png', {
+        this.load.spritesheet('dude', 'assets/desperado.png', {
+          frameWidth: 170,
+          frameHeight: 170,
         })
       }
 
@@ -45,50 +49,43 @@
       {
         // Sky
         this.add.image(0,0,'sky').setOrigin(0,0)
-        this.add.image(0,0,'star').setOrigin(0,0)
 
         // Ground
         platforms = this.physics.add.staticGroup()
         platforms.create(400, 568, 'ground').setScale(2).refreshBody()
-        platforms.create(600, 400, 'ground')
 
-        // Star
+        // Orange
         var star = this.physics.add.sprite(100, 0 , 'star')
 
         // Player
         player = this.physics.add.sprite(100,400,'dude')
         player.setCollideWorldBounds(true)
-        player.setBounce(0.2)
+        //player.setBounce(0.2)
 
         // Separate player and ground
         this.physics.add.collider(player, platforms)
+
+        // Sky can crush player
+        this.physics.add.collider(player, star, gameOver, null, this)
 
         // Animate player
         this.anims.create({
           key: 'left',
           frames: this.anims.generateFrameNumbers('dude', {
-            start: 0, end: 3
+            start: 0, end: 0
           }),
-          frameRate: 5,
+          frameRate: 1,
           //repeat: -1,
         })
 
         this.anims.create({
             key: 'right',
-            frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
-            frameRate: 10,
+            frames: this.anims.generateFrameNumbers('dude', {
+              start: 1, end: 1
+            }),
+            frameRate: 1,
             repeat: -1
         });
-        
-        this.anims.create({
-          key: 'turn',
-          frames: [
-            {
-              key: 'dude',
-              frame: 4
-            },
-          ],
-        })
 
         // Controls
         cursors = this.input.keyboard.createCursorKeys()
@@ -100,13 +97,20 @@
         var xSpeed = 160
         // Controls
         if ( cursors.left.isDown ) {
-          player.setVelocityX(-xSpeed/2)
+          player.setVelocityX(-xSpeed)
           player.anims.play('left', true)
         }
         else if ( cursors.right.isDown) {
           player.setVelocityX(xSpeed)
           player.anims.play('right', true)
         }
+        else {
+          player.setVelocityX(0)
+        }
+      }
+
+      function gameOver(player, star)
+      {
       }
     </script>
 
