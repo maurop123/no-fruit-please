@@ -25,23 +25,24 @@
 
       var player
       var cursors
+      var gameOver = false
 
       var game = new Phaser.Game(config);
 
       function preload ()
       {
         this.load.image('sky', 'assets/sky.png')
-        //this.load.spritesheet('star', 'assets/star.png', {
-        this.load.spritesheet('star', 'assets/orange.png', {
-          frameWidth: 200,
-          frameHeight: 200,
+        this.load.image('star', 'assets/star.png')
+        this.load.spritesheet('orange', 'assets/orange.png', {
+          frameWidth: 24,
+          frameHeight: 24,
         })
         this.load.image('ground', 'assets/platform.png');
         this.load.image('bomb', 'assets/bomb.png');
         //this.load.spritesheet('dude', 'assets/dude.png', {
         this.load.spritesheet('dude', 'assets/desperado.png', {
-          frameWidth: 170,
-          frameHeight: 170,
+          frameHeight: 82,
+          frameWidth: 57,
         })
       }
 
@@ -53,20 +54,82 @@
         // Ground
         platforms = this.physics.add.staticGroup()
         platforms.create(400, 568, 'ground').setScale(2).refreshBody()
-
-        // Orange
-        var star = this.physics.add.sprite(100, 0 , 'star')
+        platforms.create(600, 400, 'ground');
+        platforms.create(50, 250, 'ground');
+        platforms.create(750, 220, 'ground');
 
         // Player
         player = this.physics.add.sprite(100,400,'dude')
         player.setCollideWorldBounds(true)
-        //player.setBounce(0.2)
+        player.setBounce(0.2)
 
-        // Separate player and ground
+        // Stars
+        var stars = this.physics.add.group({
+          key: 'star',
+          repeat: 11,
+          setXY: {
+            x: 12,
+            y: 0,
+            stepX: 70,
+          },
+        })
+
+        // Separate ground, player and stars
         this.physics.add.collider(player, platforms)
+        this.physics.add.collider(stars, platforms)
 
-        // Sky can crush player
-        this.physics.add.collider(player, star, gameOver, null, this)
+        // Score
+        var score = 0
+        var scoreText = this.add.text(632, 16, 'Score: 0', {
+          fill: '#fff',
+          fontFamily: '"Roboto Condensed", sans-serif',
+          fontSize: '24px',
+        })
+
+        // Stars are collectable
+        this.physics.add.overlap(player, stars, collectStar, null, this)
+
+        function collectStar(player, star) {
+          var ptsPerStar = 10
+          star.disableBody(true, true)
+          score += ptsPerStar
+          scoreText.setText('Score: ' + score)
+
+          if (stars.countActive(true) === 0) {
+            stars.children.iterate(function (child) {
+              child.enableBody(true, child.x, 0, true, true)
+            })
+
+            addBomb()
+          }
+        }
+
+        // Bombs
+        var bombs = this.physics.add.group()
+        this.physics.add.collider(bombs, platforms)
+        this.physics.add.collider(player, bombs, gameOver, null, this)
+
+        function addBomb() {
+          var x = (player.x > 400)
+            ? Phaser.Math.Between(0, 400)
+            : Phaser.Math.Between(400, 800)
+
+          //var bomb = bombs.create(x, 16, 'bomb')
+          var bomb = bombs.create(x, 16, 'orange')
+          bomb.setVelocity(
+            Phaser.Math.Between(-200, 200),
+            20
+          )
+          bomb.setCollideWorldBounds(true)
+          bomb.setBounce(1)
+        }
+
+        function gameOver() {
+          this.physics.pause()
+          player.setTint(0xff0000)
+          gameOver = true
+        }
+
 
         // Animate player
         this.anims.create({
@@ -75,7 +138,7 @@
             start: 0, end: 0
           }),
           frameRate: 1,
-          //repeat: -1,
+          repeat: -1,
         })
 
         this.anims.create({
@@ -94,6 +157,10 @@
 
       function update ()
       {
+        if (gameOver) {
+          return
+        }
+
         var xSpeed = 160
         // Controls
         if ( cursors.left.isDown ) {
@@ -107,10 +174,10 @@
         else {
           player.setVelocityX(0)
         }
-      }
 
-      function gameOver(player, star)
-      {
+        if ( cursors.up.isDown && player.body.touching.down ) {
+          player.setVelocityY(-330)
+        }
       }
     </script>
 
