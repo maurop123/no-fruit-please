@@ -1,0 +1,18 @@
+{
+  "name": "sky-is-falling",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "serve": "http-server public",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "http-server": "^0.12.0"
+  },
+  "dependencies": {
+    "phaser": "^3.21.0"
+  }
+}
