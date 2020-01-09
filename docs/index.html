@@ -26,6 +26,8 @@
       var player
       var cursors
       var gameOver = false
+      var highscore = localStorage.getItem('highscore')
+      highscore = (highscore) ? highscore: 0
 
       var game = new Phaser.Game(config);
 
@@ -60,6 +62,7 @@
 
         // Player
         player = this.physics.add.sprite(100,400,'dude')
+        player.setScale(0.6)
         player.setCollideWorldBounds(true)
         player.setBounce(0.2)
 
@@ -79,12 +82,25 @@
         this.physics.add.collider(stars, platforms)
 
         // Score
+        var fontFamily = '"Roboto Condensed", sans-serif'
+
         var score = 0
-        var scoreText = this.add.text(632, 16, 'Score: 0', {
+        var scoreText = this.add.text(16, 16, 'Score: 0', {
           fill: '#fff',
-          fontFamily: '"Roboto Condensed", sans-serif',
+          fontFamily,
+          fontSize: '16px',
+        })
+
+        // High Score
+        var highscoreText = this.add.text(300, 16, 'Highscore: ' + highscore, {
+          fill: '#fff',
+          fontFamily,
           fontSize: '24px',
         })
+        
+
+        var bombsCount = 0
+
 
         // Stars are collectable
         this.physics.add.overlap(player, stars, collectStar, null, this)
@@ -94,6 +110,12 @@
           star.disableBody(true, true)
           score += ptsPerStar
           scoreText.setText('Score: ' + score)
+
+          if (score > highscore) {
+            highscore = score
+            highscoreText.setText('Highscore: ' + highscore)
+            localStorage.setItem('highscore', highscore)
+          }
 
           if (stars.countActive(true) === 0) {
             stars.children.iterate(function (child) {
@@ -122,11 +144,17 @@
           )
           bomb.setCollideWorldBounds(true)
           bomb.setBounce(1)
+          bombsCount++
         }
+            addBomb()
 
         function gameOver() {
           this.physics.pause()
           player.setTint(0xff0000)
+          var screen = this.add.text(311, 280, 'GAME OVER', {
+            fill: "#fff",
+            fontSize: "32px",
+          })
           gameOver = true
         }
 
